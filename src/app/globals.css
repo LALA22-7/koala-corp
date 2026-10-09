@@ -37,6 +37,12 @@
   --nav-text: #C8CAC4;
   --nav-text-active: #FFFFFF;
 
+  /* Glassmorphism tokens */
+  --glass-bg: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-header: rgba(246, 246, 240, 0.82);
+  --glass-shadow: 0 10px 30px -5px rgba(32, 34, 30, 0.07), 0 0 0 1px rgba(223, 225, 216, 0.6);
+
   /* Typography */
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
@@ -47,15 +53,59 @@
   --section-gap: 1.5rem;
 
   /* Radii */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(32, 34, 30, 0.06);
-  --shadow-md: 0 2px 8px rgba(32, 34, 30, 0.08);
-  --shadow-lg: 0 4px 16px rgba(32, 34, 30, 0.1);
+  --shadow-sm: 0 1px 3px rgba(32, 34, 30, 0.05);
+  --shadow-md: 0 4px 12px rgba(32, 34, 30, 0.07);
+  --shadow-lg: 0 12px 28px rgba(32, 34, 30, 0.1);
+}
+
+/* ── Dark Mode Token Overrides ────────────────────────────── */
+.dark {
+  --koala-lime: #A6F33C;
+  --koala-lime-light: #C2F970;
+  --koala-lime-muted: #84C92A;
+  --deep-charcoal: #F4F6EE;
+  --warm-paper: #121411;
+  --soft-white: #1A1D18;
+  --koala-grey: #9EA296;
+  --divider-grey: #262A22;
+  --muted-olive: #9EAA77;
+
+  /* Semantic dark surfaces */
+  --success-green: #4ADE80;
+  --success-green-bg: rgba(74, 222, 128, 0.12);
+  --alert-amber: #FBBF24;
+  --alert-amber-bg: rgba(251, 191, 36, 0.12);
+  --error-red: #F87171;
+  --error-red-bg: rgba(248, 113, 113, 0.12);
+  --info-blue: #60A5FA;
+  --info-blue-bg: rgba(96, 165, 250, 0.12);
+
+  /* Surfaces */
+  --background: #121411;
+  --foreground: #F4F6EE;
+  --surface: #181B16;
+  --surface-raised: #20241E;
+  --surface-muted: #242921;
+  --nav-bg: #0E100D;
+  --nav-text: #969B8E;
+  --nav-text-active: #F4F6EE;
+
+  /* Glassmorphism tokens */
+  --glass-bg: rgba(24, 27, 22, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-header: rgba(18, 20, 17, 0.82);
+  --glass-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.08);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
 }
 
 /* ============================================================
@@ -112,6 +162,7 @@ html {
   height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 250ms ease, color 250ms ease;
 }
 
 body {
@@ -126,11 +177,52 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 code, pre, .font-mono {
   font-family: var(--font-mono);
+}
+
+/* ============================================================
+   GLASSMORPHISM CLASSES
+   ============================================================ */
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: rgba(166, 243, 60, 0.35);
+  transform: translateY(-1px);
+}
+
+.glass-header {
+  background: var(--glass-header);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--divider-grey);
+}
+
+.glass-badge {
+  background: rgba(166, 243, 60, 0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(166, 243, 60, 0.28);
 }
 
 /* ============================================================
@@ -146,7 +238,7 @@ code, pre, .font-mono {
 }
 ::-webkit-scrollbar-thumb {
   background: var(--divider-grey);
-  border-radius: 3px;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--koala-grey);
@@ -162,23 +254,54 @@ code, pre, .font-mono {
 }
 
 /* ============================================================
-   ANIMATIONS — respect prefers-reduced-motion
+   ANIMATIONS
    ============================================================ */
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(1.5deg);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(166, 243, 60, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(166, 243, 60, 0.45);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-float {
+  animation: floatSlow 4.5s ease-in-out infinite;
+}
+
+.animate-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .animate-slide-in {
-    animation: slideIn 200ms ease-out;
+    animation: slideIn 220ms ease-out;
   }
   .animate-fade-in {
-    animation: fadeIn 150ms ease-out;
+    animation: fadeIn 180ms ease-out;
   }
   .animate-scale-in {
-    animation: scaleIn 200ms ease-out;
+    animation: scaleIn 220ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
 @keyframes slideIn {
-  from { transform: translateX(-8px); opacity: 0; }
+  from { transform: translateX(-10px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 @keyframes fadeIn {
@@ -186,13 +309,9 @@ code, pre, .font-mono {
   to { opacity: 1; }
 }
 @keyframes scaleIn {
-  from { transform: scale(0.96); opacity: 0; }
+  from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
-
-/* ============================================================
-   COMPONENT PATTERNS
-   ============================================================ */
 
 /* Status dot pulse */
 @media (prefers-reduced-motion: no-preference) {
@@ -201,8 +320,8 @@ code, pre, .font-mono {
   }
 }
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.9); }
 }
 
 /* Workflow track */
@@ -221,14 +340,14 @@ code, pre, .font-mono {
 
 /* Toast */
 .toast-enter {
-  animation: toastIn 200ms ease-out;
+  animation: toastIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .toast-exit {
   animation: toastOut 150ms ease-in forwards;
 }
 @keyframes toastIn {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from { transform: translateY(100%) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
 }
 @keyframes toastOut {
   from { transform: translateY(0); opacity: 1; }

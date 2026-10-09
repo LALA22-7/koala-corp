@@ -10,6 +10,8 @@ import {
   ExternalLink, RefreshCw, Eye, ChevronRight,
 } from 'lucide-react';
 
+import { KoalaLogo } from '@/components/logo';
+
 export default function OverviewPage() {
   const { state, getClient, getWorker, getWorkflow } = useApp();
 
@@ -79,6 +81,43 @@ export default function OverviewPage() {
           </Link>
         }
       />
+
+      {/* ── Brand Hero Welcome Strip ────────────────── */}
+      <div className="glass-panel rounded-[var(--radius-xl)] p-6 mb-8 border border-white/20 dark:border-white/10 relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 shadow-lg">
+        <div className="flex items-center gap-5">
+          <div className="p-3 rounded-3xl bg-koala-lime/20 dark:bg-koala-lime/10 border border-koala-lime/40 shrink-0 shadow-md">
+            <KoalaLogo size={76} animate={true} withGlow={true} />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-bold text-deep-charcoal font-[family-name:var(--font-display)]">
+                Koala Operations Command
+              </h2>
+              <span className="text-[10px] font-mono font-bold bg-koala-lime/20 text-deep-charcoal dark:text-koala-lime px-2 py-0.5 rounded-full border border-koala-lime/30">
+                ACTIVE SUPERVISOR
+              </span>
+            </div>
+            <p className="text-xs text-koala-grey mt-0.5">
+              Supervising {state.workers.length} AI workers across {state.workflows.length} client workflows with real-time human escalation guardrails.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 shrink-0">
+          <Link href="/approvals">
+            <Button variant={pendingApprovals > 0 ? 'primary' : 'secondary'} size="sm">
+              <CheckCircle2 size={14} />
+              <span>{pendingApprovals} Approvals</span>
+            </Button>
+          </Link>
+          <Link href="/workflows">
+            <Button variant="secondary" size="sm">
+              <PlayCircle size={14} />
+              <span>Launch Run</span>
+            </Button>
+          </Link>
+        </div>
+      </div>
 
       {/* ── Key metrics ────────────────────────── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

@@ -1,44 +1,112 @@
+'use client';
+
 import React from 'react';
+import Image from 'next/image';
 
 /**
- * Koala Corp. logo — SVG rendition of the brand koala mascot.
- * Uses grey tones matching the original logo on lime background.
+ * Koala Corp. Brand Logo Components
+ * Uses the authentic Friendly Koala Corp. artwork uploaded by the user,
+ * with mathematically centered ambient glow and proportional typography.
  */
-export function KoalaLogo({ size = 28, className }: { size?: number; className?: string }) {
+
+export function KoalaLogo({
+  size = 48,
+  className = '',
+  animate = true,
+  withGlow = false,
+}: {
+  size?: number;
+  className?: string;
+  animate?: boolean;
+  withGlow?: boolean;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-label="Koala Corp. logo">
-      {/* Ears */}
-      <circle cx="28" cy="28" r="16" fill="#A0A49B" />
-      <circle cx="72" cy="28" r="16" fill="#A0A49B" />
-      <circle cx="28" cy="28" r="9" fill="#C8CAC4" />
-      <circle cx="72" cy="28" r="9" fill="#C8CAC4" />
-      {/* Head */}
-      <ellipse cx="50" cy="50" rx="30" ry="28" fill="#A0A49B" />
-      {/* Face */}
-      <ellipse cx="50" cy="52" rx="22" ry="20" fill="#C8CAC4" />
-      {/* Eyes */}
-      <circle cx="40" cy="46" r="4" fill="#3A3D38" />
-      <circle cx="60" cy="46" r="4" fill="#3A3D38" />
-      <circle cx="41.5" cy="44.5" r="1.5" fill="white" />
-      <circle cx="61.5" cy="44.5" r="1.5" fill="white" />
-      {/* Nose */}
-      <ellipse cx="50" cy="55" rx="5" ry="3.5" fill="#3A3D38" />
-      <ellipse cx="50" cy="54.5" rx="2" ry="1" fill="#5A5D58" />
-      {/* Mouth */}
-      <path d="M47 58 Q50 61 53 58" stroke="#3A3D38" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-      {/* Branch hint */}
-      <path d="M72 65 Q78 72 76 85" stroke="#8B7355" strokeWidth="3" fill="none" strokeLinecap="round" />
-      <path d="M74 75 Q79 73 82 76" stroke="#8B7355" strokeWidth="2" fill="none" strokeLinecap="round" />
-      {/* Paw on branch */}
-      <ellipse cx="73" cy="66" rx="5" ry="4" fill="#A0A49B" />
-    </svg>
+    <div
+      className={`relative inline-flex items-center justify-center shrink-0 ${animate ? 'hover:scale-105 transition-all duration-300' : ''} ${className}`}
+      style={{ height: `${size}px` }}
+    >
+      {withGlow && (
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-koala-lime/25 dark:bg-koala-lime/20 rounded-full blur-lg pointer-events-none transition-all duration-300"
+          style={{ width: `${size * 1.25}px`, height: `${size * 1.25}px` }}
+        />
+      )}
+      <Image
+        src="/koala-mascot.png"
+        alt="Koala Corp. Mascot"
+        width={Math.round(size * 1.82)}
+        height={size}
+        priority
+        className={`object-contain drop-shadow-md select-none transition-transform duration-300 relative z-10 ${animate ? 'animate-float' : ''}`}
+        style={{
+          height: `${size}px`,
+          width: `${Math.round(size * 1.82)}px`,
+        }}
+      />
+    </div>
   );
 }
 
-export function KoalaWordmark({ className }: { className?: string }) {
+export function KoalaWordmark({
+  className = '',
+  showLogo = false,
+  size = 40,
+}: {
+  className?: string;
+  showLogo?: boolean;
+  size?: number;
+}) {
   return (
-    <span className={`font-[family-name:var(--font-display)] font-semibold text-lg tracking-tight ${className || ''}`}>
-      koala corp<span className="text-koala-lime">.</span>
-    </span>
+    <div className={`flex items-center gap-2.5 ${className}`}>
+      {showLogo && <KoalaLogo size={size} />}
+      <span className="font-[family-name:var(--font-display)] font-bold text-base tracking-tight select-none flex items-center leading-none">
+        <span>koala</span>
+        <span className="ml-1 text-white/95">corp</span>
+        <span className="text-koala-lime font-black text-lg leading-none ml-0.5">.</span>
+      </span>
+    </div>
+  );
+}
+
+export function KoalaFullBrand({
+  width = 200,
+  className = '',
+}: {
+  width?: number;
+  className?: string;
+}) {
+  return (
+    <div className={`relative inline-block ${className}`} style={{ width }}>
+      <Image
+        src="/koala-brand-full.png"
+        alt="Koala Corp."
+        width={width}
+        height={Math.round(width * 0.71)}
+        className="object-contain w-full h-auto drop-shadow-lg"
+      />
+    </div>
+  );
+}
+
+export function KoalaBadge({
+  size = 52,
+  className = '',
+}: {
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`relative rounded-2xl overflow-hidden shadow-lg border border-white/20 dark:border-white/10 flex items-center justify-center bg-[#A6F33C] p-1.5 ${className}`}
+      style={{ width: size, height: size }}
+    >
+      <Image
+        src="/koala-mascot.png"
+        alt="Koala Badge"
+        width={size * 1.4}
+        height={size * 1.1}
+        className="object-contain h-full w-auto drop-shadow-sm"
+      />
+    </div>
   );
 }
