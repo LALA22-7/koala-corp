@@ -1,26 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
+/* ============================================================
+   KOALA CORP. DESIGN TOKENS
+   ============================================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand colors — extracted from logo */
+  --koala-lime: #A4D233;
+  --koala-lime-light: #C7E87A;
+  --koala-lime-muted: #8AB82A;
+  --deep-charcoal: #20221E;
+  --warm-paper: #F6F6F0;
+  --soft-white: #FFFFFF;
+  --koala-grey: #969A91;
+  --divider-grey: #DFE1D8;
+  --muted-olive: #727A55;
+
+  /* Semantic colors */
+  --success-green: #347A53;
+  --success-green-bg: #E8F5EE;
+  --alert-amber: #A66A18;
+  --alert-amber-bg: #FFF4E5;
+  --error-red: #BC4646;
+  --error-red-bg: #FDEAEA;
+  --info-blue: #4A7FB5;
+  --info-blue-bg: #E8F0F8;
+
+  /* Surfaces */
+  --background: #F6F6F0;
+  --foreground: #20221E;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --surface-muted: #F0F1EC;
+  --nav-bg: #20221E;
+  --nav-text: #C8CAC4;
+  --nav-text-active: #FFFFFF;
+
+  /* Typography */
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Spacing */
+  --page-padding: 2rem;
+  --section-gap: 1.5rem;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(32, 34, 30, 0.06);
+  --shadow-md: 0 2px 8px rgba(32, 34, 30, 0.08);
+  --shadow-lg: 0 4px 16px rgba(32, 34, 30, 0.1);
 }
+
+/* ============================================================
+   TAILWIND THEME INLINE
+   ============================================================ */
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-koala-lime: var(--koala-lime);
+  --color-koala-lime-light: var(--koala-lime-light);
+  --color-koala-lime-muted: var(--koala-lime-muted);
+  --color-deep-charcoal: var(--deep-charcoal);
+  --color-warm-paper: var(--warm-paper);
+  --color-soft-white: var(--soft-white);
+  --color-koala-grey: var(--koala-grey);
+  --color-divider-grey: var(--divider-grey);
+  --color-muted-olive: var(--muted-olive);
+  --color-success-green: var(--success-green);
+  --color-success-green-bg: var(--success-green-bg);
+  --color-alert-amber: var(--alert-amber);
+  --color-alert-amber-bg: var(--alert-amber-bg);
+  --color-error-red: var(--error-red);
+  --color-error-red-bg: var(--error-red-bg);
+  --color-info-blue: var(--info-blue);
+  --color-info-blue-bg: var(--info-blue-bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-muted: var(--surface-muted);
+  --color-nav-bg: var(--nav-bg);
+  --color-nav-text: var(--nav-text);
+  --color-nav-text-active: var(--nav-text-active);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+code, pre, .font-mono {
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--divider-grey);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--koala-grey);
+}
+
+/* ============================================================
+   FOCUS STYLES
+   ============================================================ */
+
+:focus-visible {
+  outline: 2px solid var(--koala-lime);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   ANIMATIONS — respect prefers-reduced-motion
+   ============================================================ */
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-slide-in {
+    animation: slideIn 200ms ease-out;
+  }
+  .animate-fade-in {
+    animation: fadeIn 150ms ease-out;
+  }
+  .animate-scale-in {
+    animation: scaleIn 200ms ease-out;
+  }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-8px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   COMPONENT PATTERNS
+   ============================================================ */
+
+/* Status dot pulse */
+@media (prefers-reduced-motion: no-preference) {
+  .status-pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Workflow track */
+.workflow-track {
+  position: relative;
+}
+.workflow-track::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--divider-grey);
+}
+
+/* Toast */
+.toast-enter {
+  animation: toastIn 200ms ease-out;
+}
+.toast-exit {
+  animation: toastOut 150ms ease-in forwards;
+}
+@keyframes toastIn {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes toastOut {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(100%); opacity: 0; }
 }

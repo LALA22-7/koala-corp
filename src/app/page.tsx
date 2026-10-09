@@ -1,69 +1,240 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { useApp } from '@/lib/store';
+import { StatusBadge, PageHeader, Card, MetricCard, Button, EmptyState } from '@/components/ui';
+import { formatRelativeTime, formatDateTime, cn, statusColor, eventTypeLabel } from '@/lib/utils';
+import {
+  ArrowRight, AlertTriangle, CheckCircle2, Clock, PlayCircle,
+  ExternalLink, RefreshCw, Eye, ChevronRight,
+} from 'lucide-react';
+
+export default function OverviewPage() {
+  const { state, getClient, getWorker, getWorkflow } = useApp();
+
+  // Derived metrics
+  const activeWorkflows = state.workflows.filter(w => w.status === 'active').length;
+  const completedRuns = state.taskRuns.filter(r => r.status === 'completed').length;
+  const pendingApprovals = state.approvals.filter(a => a.status === 'pending').length;
+  const failedRuns = state.taskRuns.filter(r => r.status === 'failed').length;
+  const needsAttention = pendingApprovals + failedRuns;
+
+  // Recent work items (latest task runs)
+  const recentRuns = [...state.taskRuns]
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, 6);
+
+  // Attention items
+  const attentionItems = [
+    ...state.approvals
+      .filter(a => a.status === 'pending')
+      .map(a => ({
+        id: a.id,
+        type: 'approval' as const,
+        title: a.proposedAction,
+        client: getClient(a.clientId)?.name || '',
+        description: a.reason,
+        time: a.createdAt,
+        href: '/approvals',
+      })),
+    ...state.taskRuns
+      .filter(r => r.status === 'failed')
+      .map(r => ({
+        id: r.id,
+        type: 'failure' as const,
+        title: r.name,
+        client: getClient(r.clientId)?.name || '',
+        description: r.error || 'Execution failed',
+        time: r.updatedAt,
+        href: '/activity',
+      })),
+    ...state.integrations
+      .filter(i => i.status === 'needs_attention')
+      .map(i => ({
+        id: i.id,
+        type: 'integration' as const,
+        title: `${i.name} needs reauthorization`,
+        client: '',
+        description: i.attentionMessage || 'Connection needs attention',
+        time: i.lastSync || '',
+        href: '/integrations',
+      })),
+  ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+
+  // Recent activity
+  const recentActivity = state.activityEvents.slice(0, 8);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div>
+      <PageHeader
+        title="Operations overview"
+        description="Your team's AI-assisted work, execution status, and decisions that need attention."
+        actions={
+          <Link href="/workflows">
+            <Button variant="primary" size="md">
+              <PlayCircle size={16} />
+              View workflows
+            </Button>
+          </Link>
+        }
+      />
+
+      {/* ── Key metrics ────────────────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <Card>
+          <MetricCard label="Active workflows" value={activeWorkflows} />
+        </Card>
+        <Card>
+          <MetricCard label="Runs completed" value={completedRuns} change="Last 7 days" />
+        </Card>
+        <Card>
+          <MetricCard
+            label="Awaiting review"
+            value={pendingApprovals}
+            status={pendingApprovals > 0 ? 'needs_review' : undefined}
+          />
+        </Card>
+        <Card>
+          <MetricCard
+            label="Needs attention"
+            value={needsAttention}
+            status={needsAttention > 0 ? 'failed' : undefined}
+          />
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ── Current work ────────────────────────── */}
+        <div className="lg:col-span-2">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold text-deep-charcoal font-[family-name:var(--font-display)]">Current work</h2>
+            <Link href="/activity" className="text-xs text-koala-grey hover:text-deep-charcoal flex items-center gap-1">
+              View all <ChevronRight size={12} />
+            </Link>
+          </div>
+          <Card padding={false}>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-divider-grey">
+                    <th className="text-left px-4 py-3 text-xs font-medium text-koala-grey uppercase tracking-wider">Task</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-koala-grey uppercase tracking-wider hidden sm:table-cell">Client</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-koala-grey uppercase tracking-wider">Status</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-koala-grey uppercase tracking-wider hidden md:table-cell">Worker</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-koala-grey uppercase tracking-wider hidden lg:table-cell">Updated</th>
+                    <th className="px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentRuns.map((run, i) => {
+                    const client = getClient(run.clientId);
+                    const worker = getWorker(run.workerId);
+                    return (
+                      <tr key={run.id} className={cn('border-b border-divider-grey/50 hover:bg-surface-muted/50 transition-colors', i === recentRuns.length - 1 && 'border-b-0')}>
+                        <td className="px-4 py-3">
+                          <span className="font-medium text-deep-charcoal">{run.name}</span>
+                        </td>
+                        <td className="px-4 py-3 hidden sm:table-cell">
+                          <span className="text-koala-grey">{client?.name || '—'}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <StatusBadge status={run.status} />
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell">
+                          <span className="text-koala-grey text-xs">{worker?.name || '—'}</span>
+                        </td>
+                        <td className="px-4 py-3 hidden lg:table-cell">
+                          <span className="text-koala-grey text-xs font-[family-name:var(--font-mono)]">{formatRelativeTime(run.updatedAt)}</span>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Link href={`/workflows/${run.workflowId}`}>
+                            <Button variant="ghost" size="sm">
+                              <Eye size={14} />
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* ── Needs attention ─────────────────────── */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold text-deep-charcoal font-[family-name:var(--font-display)]">Needs attention</h2>
+            {attentionItems.length > 0 && (
+              <span className="text-xs bg-alert-amber-bg text-alert-amber px-2 py-0.5 rounded-full font-medium">{attentionItems.length}</span>
+            )}
+          </div>
+          {attentionItems.length === 0 ? (
+            <Card>
+              <div className="text-center py-8">
+                <CheckCircle2 size={24} className="mx-auto text-success-green mb-2" />
+                <p className="text-sm text-koala-grey">Everything is up to date</p>
+              </div>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {attentionItems.map(item => (
+                <Link key={item.id} href={item.href}>
+                  <Card className="hover:border-koala-grey/50 transition-colors cursor-pointer group">
+                    <div className="flex items-start gap-3">
+                      <div className={cn(
+                        'w-8 h-8 rounded-[var(--radius-md)] flex items-center justify-center shrink-0 mt-0.5',
+                        item.type === 'approval' ? 'bg-alert-amber-bg' : item.type === 'failure' ? 'bg-error-red-bg' : 'bg-alert-amber-bg'
+                      )}>
+                        {item.type === 'approval' ? <Clock size={14} className="text-alert-amber" /> :
+                         item.type === 'failure' ? <AlertTriangle size={14} className="text-error-red" /> :
+                         <RefreshCw size={14} className="text-alert-amber" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-deep-charcoal group-hover:text-koala-lime-muted transition-colors truncate">{item.title}</p>
+                        {item.client && <p className="text-xs text-koala-grey mt-0.5">{item.client}</p>}
+                        <p className="text-xs text-koala-grey mt-1 line-clamp-2">{item.description}</p>
+                        <p className="text-xs text-koala-grey/60 mt-1 font-[family-name:var(--font-mono)]">{formatRelativeTime(item.time)}</p>
+                      </div>
+                      <ChevronRight size={14} className="text-koala-grey/40 group-hover:text-koala-grey mt-1 shrink-0" />
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
-      </main>
+      </div>
+
+      {/* ── Recent activity ────────────────────── */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold text-deep-charcoal font-[family-name:var(--font-display)]">Recent activity</h2>
+          <Link href="/activity" className="text-xs text-koala-grey hover:text-deep-charcoal flex items-center gap-1">
+            View all <ChevronRight size={12} />
+          </Link>
+        </div>
+        <Card padding={false}>
+          <div className="divide-y divide-divider-grey/50">
+            {recentActivity.map(event => {
+              const colors = statusColor(event.status || 'info');
+              return (
+                <div key={event.id} className="flex items-center gap-3 px-4 py-3 hover:bg-surface-muted/30 transition-colors">
+                  <div className={cn('w-2 h-2 rounded-full shrink-0', colors.dot)} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-deep-charcoal truncate">{event.description}</p>
+                  </div>
+                  <span className="text-xs text-koala-grey font-[family-name:var(--font-mono)] shrink-0 hidden sm:block">
+                    {formatRelativeTime(event.timestamp)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }
